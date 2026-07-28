@@ -1,0 +1,327 @@
+-- [[ Ultimate Custom Hub - 5 Functions ]]
+-- Key: 123
+-- สำหรับรันใน Delta Executor
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+-- ลบ UI เก่าป้องกันเปิดซ้ำ
+if CoreGui:FindFirstChild("NewCustomHubUI") then
+    CoreGui.NewCustomHubUI:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "NewCustomHubUI"
+ScreenGui.Parent = CoreGui
+
+-- ==================== ฟังก์ชันทำให้ลากย้ายได้ ====================
+local function makeDraggable(frame)
+    local dragging, dragInput, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+-- ==================== 1. ปุ่มวงกลม abcd ====================
+local ToggleCircle = Instance.new("TextButton")
+ToggleCircle.Size = UDim2.new(0, 50, 0, 50)
+ToggleCircle.Position = UDim2.new(0.05, 0, 0.2, 0)
+ToggleCircle.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleCircle.Text = "abcd"
+ToggleCircle.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleCircle.TextSize = 14
+ToggleCircle.Font = Enum.Font.GothamBold
+ToggleCircle.Parent = ScreenGui
+makeDraggable(ToggleCircle)
+
+local CircleCorner = Instance.new("UICorner")
+CircleCorner.CornerRadius = UDim.new(1, 0)
+CircleCorner.Parent = ToggleCircle
+
+local CircleStroke = Instance.new("UIStroke")
+CircleStroke.Thickness = 3
+CircleStroke.Parent = ToggleCircle
+
+local RainbowGradient = Instance.new("UIGradient")
+RainbowGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 165, 0)),
+    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(128, 0, 128))
+})
+RainbowGradient.Parent = CircleStroke
+
+-- ==================== 2. หน้าต่างใส่คีย์ (123) ====================
+local KeyFrame = Instance.new("Frame")
+KeyFrame.Size = UDim2.new(0, 220, 0, 130)
+KeyFrame.Position = UDim2.new(0.5, -110, 0.4, -65)
+KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+KeyFrame.Parent = ScreenGui
+makeDraggable(KeyFrame)
+
+local KeyCorner = Instance.new("UICorner")
+KeyCorner.CornerRadius = UDim.new(0, 8)
+KeyCorner.Parent = KeyFrame
+
+local KeyTitle = Instance.new("TextLabel")
+KeyTitle.Size = UDim2.new(1, 0, 0, 30)
+KeyTitle.BackgroundTransparency = 1
+KeyTitle.Text = "🔑 ใส่คีย์ (Key: 123)"
+KeyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyTitle.TextSize = 12
+KeyTitle.Font = Enum.Font.GothamBold
+KeyTitle.Parent = KeyFrame
+
+local KeyBox = Instance.new("TextBox")
+KeyBox.Size = UDim2.new(0.8, 0, 0, 30)
+KeyBox.Position = UDim2.new(0.1, 0, 0.3, 0)
+KeyBox.PlaceholderText = "กรอกคีย์..."
+KeyBox.Text = ""
+KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+KeyBox.TextSize = 12
+KeyBox.Font = Enum.Font.Gotham
+KeyBox.Parent = KeyFrame
+
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Size = UDim2.new(0.8, 0, 0, 30)
+SubmitBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+SubmitBtn.Text = "ตกลง"
+SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+SubmitBtn.TextSize = 12
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.Parent = KeyFrame
+
+-- ==================== 3. เมนูหลัก (5 ฟังก์ชัน) ====================
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 240, 0, 290)
+MainFrame.Position = UDim2.new(0.5, -120, 0.3, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.Visible = false
+MainFrame.Parent = ScreenGui
+makeDraggable(MainFrame)
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Thickness = 2
+MainStroke.Parent = MainFrame
+local MainGradient = RainbowGradient:Clone()
+MainGradient.Parent = MainStroke
+
+local MainTitle = Instance.new("TextLabel")
+MainTitle.Size = UDim2.new(1, 0, 0, 35)
+MainTitle.BackgroundTransparency = 1
+MainTitle.Text = "⚡ CUSTOM HUB (5 FUNCS)"
+MainTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainTitle.TextSize = 13
+MainTitle.Font = Enum.Font.GothamBold
+MainTitle.Parent = MainFrame
+
+-- ฟังก์ชันที่ 1: ความเร็ว (Speed)
+local SpeedBox = Instance.new("TextBox")
+SpeedBox.Size = UDim2.new(0.85, 0, 0, 32)
+SpeedBox.Position = UDim2.new(0.075, 0, 0.14, 0)
+SpeedBox.PlaceholderText = "1. ความเร็วเดิน (ปกติ 16)"
+SpeedBox.Text = ""
+SpeedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+SpeedBox.TextSize = 11
+SpeedBox.Font = Enum.Font.Gotham
+SpeedBox.Parent = MainFrame
+
+-- ฟังก์ชันที่ 2: กระโดดสูง (Jump)
+local JumpBox = Instance.new("TextBox")
+JumpBox.Size = UDim2.new(0.85, 0, 0, 32)
+JumpBox.Position = UDim2.new(0.075, 0, 0.28, 0)
+JumpBox.PlaceholderText = "2. ความสูงกระโดด (ปกติ 50)"
+JumpBox.Text = ""
+JumpBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+JumpBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+JumpBox.TextSize = 11
+JumpBox.Font = Enum.Font.Gotham
+JumpBox.Parent = MainFrame
+
+-- ฟังก์ชันที่ 3: หัวหาย (Headless)
+local HeadlessBtn = Instance.new("TextButton")
+HeadlessBtn.Size = UDim2.new(0.85, 0, 0, 32)
+HeadlessBtn.Position = UDim2.new(0.075, 0, 0.42, 0)
+HeadlessBtn.Text = "3. หัวหาย (Headless): OFF"
+HeadlessBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+HeadlessBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+HeadlessBtn.TextSize = 11
+HeadlessBtn.Font = Enum.Font.GothamBold
+HeadlessBtn.Parent = MainFrame
+
+-- ฟังก์ชันที่ 4: เป้าเล็งวงกลม (Crosshair)
+local CrosshairBtn = Instance.new("TextButton")
+CrosshairBtn.Size = UDim2.new(0.85, 0, 0, 32)
+CrosshairBtn.Position = UDim2.new(0.075, 0, 0.56, 0)
+CrosshairBtn.Text = "4. เป้าเล็งวงกลม: OFF"
+CrosshairBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+CrosshairBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+CrosshairBtn.TextSize = 11
+CrosshairBtn.Font = Enum.Font.GothamBold
+CrosshairBtn.Parent = MainFrame
+
+-- ฟังก์ชันที่ 5: เปิด/ปิด ขอบสายรุ้ง (Rainbow Effect)
+local RainbowToggleBtn = Instance.new("TextButton")
+RainbowToggleBtn.Size = UDim2.new(0.85, 0, 0, 32)
+RainbowToggleBtn.Position = UDim2.new(0.075, 0, 0.70, 0)
+RainbowToggleBtn.Text = "5. เอฟเฟกต์ขอบสายรุ้ง: ON"
+RainbowToggleBtn.TextColor3 = Color3.fromRGB(100, 255, 100)
+RainbowToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+RainbowToggleBtn.TextSize = 11
+RainbowToggleBtn.Font = Enum.Font.GothamBold
+RainbowToggleBtn.Parent = MainFrame
+
+-- ==================== 4. เป้าเล็งวงกลม (Crosshair UI) ====================
+local CrosshairCircle = Instance.new("Frame")
+CrosshairCircle.Size = UDim2.new(0, 14, 0, 14)
+CrosshairCircle.Position = UDim2.new(0.5, -7, 0.5, -7)
+CrosshairCircle.BackgroundTransparency = 1
+CrosshairCircle.Visible = false
+CrosshairCircle.Parent = ScreenGui
+
+local CrosshairStroke = Instance.new("UIStroke")
+CrosshairStroke.Thickness = 2
+CrosshairStroke.Color = Color3.fromRGB(0, 255, 0)
+CrosshairStroke.Parent = CrosshairCircle
+
+local CrosshairCorner = Instance.new("UICorner")
+CrosshairCorner.CornerRadius = UDim.new(1, 0)
+CrosshairCorner.Parent = CrosshairCircle
+
+local CenterDot = Instance.new("Frame")
+CenterDot.Size = UDim2.new(0, 4, 0, 4)
+CenterDot.Position = UDim2.new(0.5, -2, 0.5, -2)
+CenterDot.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CenterDot.Parent = CrosshairCircle
+
+local DotCorner = Instance.new("UICorner")
+DotCorner.CornerRadius = UDim.new(1, 0)
+DotCorner.Parent = CenterDot
+
+-- ==================== 5. ระบบการทำงาน (Logic) ====================
+
+-- เอฟเฟกต์ขอบสายรุ้งหมุนเวียน
+local enableRainbow = true
+local hue = 0
+task.spawn(function()
+    while true do
+        if enableRainbow then
+            hue = (hue + 0.01) % 1
+            RainbowGradient.Offset = Vector2.new(hue, 0)
+            MainGradient.Offset = Vector2.new(hue, 0)
+        end
+        task.wait(0.03)
+    end
+end)
+
+-- คีย์
+local isKeyUnlocked = false
+SubmitBtn.MouseButton1Click:Connect(function()
+    if KeyBox.Text == "123" then
+        isKeyUnlocked = true
+        KeyFrame.Visible = false
+        MainFrame.Visible = true
+    else
+        KeyBox.Text = ""
+        KeyBox.PlaceholderText = "คีย์ผิด!"
+    end
+end)
+
+-- ปุ่มเปิด/ปิดเมนู abcd
+ToggleCircle.MouseButton1Click:Connect(function()
+    if not isKeyUnlocked then
+        KeyFrame.Visible = not KeyFrame.Visible
+    else
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+-- ฟังก์ชัน 1: ปรับ Speed
+SpeedBox.FocusLost:Connect(function()
+    local val = tonumber(SpeedBox.Text)
+    if val and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = val
+    end
+end)
+
+-- ฟังก์ชัน 2: ปรับ Jump
+JumpBox.FocusLost:Connect(function()
+    local val = tonumber(JumpBox.Text)
+    if val and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.UseJumpPower = true
+        LocalPlayer.Character.Humanoid.JumpPower = val
+    end
+end)
+
+-- ฟังก์ชัน 3: Headless (หัวหาย)
+local isHeadless = false
+HeadlessBtn.MouseButton1Click:Connect(function()
+    isHeadless = not isHeadless
+    local char = LocalPlayer.Character
+    if char and char:FindFirstChild("Head") then
+        char.Head.Transparency = isHeadless and 1 or 0
+        if char.Head:FindFirstChildOfClass("Decal") then
+            char.Head:FindFirstChildOfClass("Decal").Transparency = isHeadless and 1 or 0
+        end
+    end
+    HeadlessBtn.Text = "3. หัวหาย (Headless): " .. (isHeadless and "ON" or "OFF")
+    HeadlessBtn.TextColor3 = isHeadless and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
+end)
+
+-- เกิดใหม่แล้วหัวหายต่อเนื่อง
+LocalPlayer.CharacterAdded:Connect(function(char)
+    if isHeadless then
+        task.wait(0.5)
+        if char:FindFirstChild("Head") then
+            char.Head.Transparency = 1
+            if char.Head:FindFirstChildOfClass("Decal") then
+                char.Head:FindFirstChildOfClass("Decal").Transparency = 1
+            end
+        end
+    end
+end)
+
+-- ฟังก์ชัน 4: เป้าเล็งวงกลม
+local isCrosshair = false
+CrosshairBtn.MouseButton1Click:Connect(function()
+    isCrosshair = not isCrosshair
+    CrosshairCircle.Visible = isCrosshair
+    CrosshairBtn.Text = "4. เป้าเล็งวงกลม: " .. (isCrosshair and "ON" or "OFF")
+    CrosshairBtn.TextColor3 = isCrosshair and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
+end)
+
+-- ฟังก์ชัน 5: สลับขอบสายรุ้ง
+RainbowToggleBtn.MouseButton1Click:Connect(function()
+    enableRainbow = not enableRainbow
+    RainbowToggleBtn.Text = "5. เอฟเฟกต์ขอบสายรุ้ง: " .. (enableRainbow and "ON" or "OFF")
+    RainbowToggleBtn.TextColor3 = enableRainbow and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
+end)
